@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProductApi.Data;
+using ProductApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,8 @@ if (string.IsNullOrWhiteSpace(oracleConnectionString))
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseOracle(oracleConnectionString));
+
+builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 
