@@ -1,0 +1,36 @@
+name: product-app
+
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Database__ApplyMigrationsOnStartup: "true"
+      ConnectionStrings__Oracle: "User Id=${APP_USER:-PRODUCT_APP};Password=${APP_USER_PASSWORD:?Set APP_USER_PASSWORD in infra/.env};Data Source=oracle:1521/FREEPDB1"
+    ports:
+      - "5297:8080"
+    depends_on:
+      oracle:
+        condition: service_healthy
+
+  oracle:
+    image: gvenzl/oracle-free:23.26.2-slim
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD:?Set ORACLE_PASSWORD in infra/.env}
+      APP_USER: ${APP_USER:-PRODUCT_APP}
+      APP_USER_PASSWORD: ${APP_USER_PASSWORD:?Set APP_USER_PASSWORD in infra/.env}
+    ports:
+      - "1521:1521"
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 5m
+
+volumes:
+  oracle-data:
