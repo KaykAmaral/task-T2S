@@ -1,0 +1,7 @@
+**/bin/
+**/obj/
+ProductApi.Tests/
+.git/
+.vs/
+.idea/
+Dockerfile*

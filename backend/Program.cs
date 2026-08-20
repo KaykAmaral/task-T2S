@@ -49,6 +49,13 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
+if (builder.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup"))
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await dbContext.Database.MigrateAsync();
+}
+
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 
