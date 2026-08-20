@@ -2,11 +2,34 @@ using Microsoft.EntityFrameworkCore;
 using ProductApi.Data;
 using ProductApi.Services;
 
+const string FrontendCorsPolicy = "Frontend";
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddProblemDetails();
+
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>();
+
+if (allowedOrigins is null || allowedOrigins.Length == 0)
+{
+    throw new InvalidOperationException(
+        "At least one CORS origin must be configured in 'Cors:AllowedOrigins'.");
+}
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(FrontendCorsPolicy, policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+            .WithMethods("GET", "POST", "PUT", "DELETE")
+            .AllowAnyHeader();
+    });
+});
 
 var oracleConnectionString = builder.Configuration.GetConnectionString("Oracle");
 
@@ -26,7 +49,12 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
+app.UseExceptionHandler();
+app.UseStatusCodePages();
+
 app.UseHttpsRedirection();
+
+app.UseCors(FrontendCorsPolicy);
 
 app.UseAuthorization();
 
