@@ -59,8 +59,6 @@ if (builder.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup"))
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 
-app.UseHttpsRedirection();
-
 app.UseCors(FrontendCorsPolicy);
 
 app.UseAuthorization();
