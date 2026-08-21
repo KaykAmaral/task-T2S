@@ -1,0 +1,119 @@
+<main class="page-shell">
+  <header class="page-header">
+    <div class="brand" aria-label="Product Admin">
+      <span class="brand-mark">P</span>
+      <span>Product Admin</span>
+    </div>
+
+    <div class="header-content">
+      <div>
+        <p class="eyebrow">Visão geral do catálogo</p>
+        <h1>Produtos</h1>
+        <p class="subtitle">
+          Consulte os produtos cadastrados no Oracle por meio da API ASP.NET Core.
+        </p>
+      </div>
+
+      <button
+        class="refresh-button"
+        type="button"
+        [disabled]="isLoading"
+        (click)="loadProducts()"
+      >
+        <span aria-hidden="true">↻</span>
+        {{ isLoading ? 'Atualizando...' : 'Atualizar lista' }}
+      </button>
+    </div>
+  </header>
+
+  <section class="summary-grid" aria-label="Resumo dos produtos">
+    <article class="summary-card">
+      <span class="summary-icon" aria-hidden="true">▦</span>
+      <div>
+        <span class="summary-label">Produtos cadastrados</span>
+        <strong>{{ products.length }}</strong>
+      </div>
+    </article>
+
+    <article class="summary-card summary-card--muted">
+      <span
+        class="status-dot"
+        [class.status-dot--error]="errorMessage"
+        aria-hidden="true"
+      ></span>
+      <div>
+        <span class="summary-label">Integração</span>
+        <strong>
+          {{ isLoading ? 'Verificando...' : errorMessage ? 'API indisponível' : 'API conectada' }}
+        </strong>
+      </div>
+    </article>
+  </section>
+
+  <section class="products-card" aria-labelledby="products-title">
+    <div class="card-header">
+      <div>
+        <h2 id="products-title">Catálogo de produtos</h2>
+        <p>Dados carregados diretamente do backend.</p>
+      </div>
+      <span class="record-count">
+        {{ products.length }} {{ products.length === 1 ? 'registro' : 'registros' }}
+      </span>
+    </div>
+
+    <div class="card-content" aria-live="polite">
+      @if (isLoading) {
+        <div class="state-message">
+          <span class="loader" aria-hidden="true"></span>
+          <strong>Carregando produtos...</strong>
+          <p>Aguarde enquanto consultamos a API.</p>
+        </div>
+      } @else if (errorMessage) {
+        <div class="state-message state-message--error">
+          <span class="state-icon" aria-hidden="true">!</span>
+          <strong>Não foi possível carregar a lista</strong>
+          <p>{{ errorMessage }}</p>
+          <button type="button" class="retry-button" (click)="loadProducts()">
+            Tentar novamente
+          </button>
+        </div>
+      } @else if (products.length === 0) {
+        <div class="state-message">
+          <span class="state-icon" aria-hidden="true">◇</span>
+          <strong>Nenhum produto cadastrado</strong>
+          <p>Os produtos criados aparecerão aqui.</p>
+        </div>
+      } @else {
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Produto</th>
+                <th scope="col">Preço</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (product of products; track product.id) {
+                <tr>
+                  <td class="product-id">#{{ product.id }}</td>
+                  <td>
+                    <div class="product-name">
+                      <span class="product-avatar" aria-hidden="true">
+                        {{ product.name.charAt(0).toUpperCase() }}
+                      </span>
+                      <strong>{{ product.name }}</strong>
+                    </div>
+                  </td>
+                  <td class="product-price">
+                    {{ product.price | currency:'BRL':'symbol':'1.2-2' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </section>
+</main>
