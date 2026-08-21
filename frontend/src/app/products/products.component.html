@@ -53,15 +53,21 @@
   <div class="workspace-grid">
     <section class="form-card" aria-labelledby="product-form-title">
       <div class="form-card-header">
-        <p class="form-eyebrow">Novo cadastro</p>
-        <h2 id="product-form-title">Dados do produto</h2>
-        <p>Preencha os campos para validar um novo produto.</p>
+        <p class="form-eyebrow">{{ isEditing ? 'Edição' : 'Novo cadastro' }}</p>
+        <h2 id="product-form-title">
+          {{ isEditing ? 'Editar produto' : 'Dados do produto' }}
+        </h2>
+        <p>
+          {{ isEditing
+            ? 'Altere os campos e salve as mudanças.'
+            : 'Preencha os campos para cadastrar um novo produto.' }}
+        </p>
       </div>
 
       <form
         class="product-form"
         [formGroup]="productForm"
-        (ngSubmit)="validateProductForm()"
+        (ngSubmit)="saveProduct()"
         novalidate
       >
         <div class="form-field">
@@ -76,6 +82,7 @@
             maxlength="120"
             autocomplete="off"
             placeholder="Ex.: Notebook"
+            [readOnly]="isSubmitting || deletingProductId !== null"
             [class.input-error]="nameControl.invalid && nameControl.touched"
             [attr.aria-invalid]="nameControl.invalid && nameControl.touched"
             aria-describedby="name-feedback"
@@ -106,6 +113,7 @@
             step="0.01"
             inputmode="decimal"
             placeholder="0,00"
+            [readOnly]="isSubmitting || deletingProductId !== null"
             [class.input-error]="priceControl.invalid && priceControl.touched"
             [attr.aria-invalid]="priceControl.invalid && priceControl.touched"
             aria-describedby="price-feedback"
@@ -121,17 +129,34 @@
           </div>
         </div>
 
-        @if (hasAttemptedSubmit && productForm.valid) {
-          <p class="form-ready" role="status">
-            Dados válidos. O formulário está pronto para ser enviado.
+        @if (formSuccessMessage) {
+          <p class="form-response form-response--success" role="status">
+            {{ formSuccessMessage }}
+          </p>
+        } @else if (formErrorMessage) {
+          <p class="form-response form-response--error" role="alert">
+            {{ formErrorMessage }}
           </p>
         }
 
         <div class="form-actions">
-          <button class="secondary-button" type="button" (click)="resetProductForm()">
-            Limpar
+          <button
+            class="secondary-button"
+            type="button"
+            [disabled]="isSubmitting || deletingProductId !== null"
+            (click)="resetProductForm()"
+          >
+            {{ isEditing ? 'Cancelar' : 'Limpar' }}
           </button>
-          <button class="submit-button" type="submit">Validar dados</button>
+          <button
+            class="submit-button"
+            type="submit"
+            [disabled]="isSubmitting || deletingProductId !== null"
+          >
+            {{ isSubmitting
+              ? (isEditing ? 'Salvando...' : 'Cadastrando...')
+              : (isEditing ? 'Salvar alterações' : 'Cadastrar produto') }}
+          </button>
         </div>
       </form>
     </section>
@@ -146,6 +171,16 @@
         {{ products.length }} {{ products.length === 1 ? 'registro' : 'registros' }}
       </span>
     </div>
+
+    @if (catalogSuccessMessage) {
+      <p class="catalog-response catalog-response--success" role="status">
+        {{ catalogSuccessMessage }}
+      </p>
+    } @else if (catalogErrorMessage) {
+      <p class="catalog-response catalog-response--error" role="alert">
+        {{ catalogErrorMessage }}
+      </p>
+    }
 
     <div class="card-content" aria-live="polite">
       @if (isLoading) {
@@ -177,6 +212,7 @@
                 <th scope="col">ID</th>
                 <th scope="col">Produto</th>
                 <th scope="col">Preço</th>
+                <th scope="col" class="actions-heading">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -193,6 +229,26 @@
                   </td>
                   <td class="product-price">
                     {{ product.price | currency:'BRL':'symbol':'1.2-2' }}
+                  </td>
+                  <td>
+                    <div class="row-actions">
+                      <button
+                        type="button"
+                        class="edit-button"
+                        [disabled]="isSubmitting || deletingProductId !== null"
+                        (click)="startEditing(product)"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        class="delete-button"
+                        [disabled]="isSubmitting || deletingProductId !== null"
+                        (click)="deleteProduct(product)"
+                      >
+                        {{ deletingProductId === product.id ? 'Excluindo...' : 'Excluir' }}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               }

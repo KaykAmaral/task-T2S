@@ -305,15 +305,23 @@ button:focus-visible {
   font-weight: 650;
 }
 
-.form-ready {
+.form-response {
   margin: -4px 0 0;
   padding: 11px 13px;
   border-radius: 10px;
-  color: #227153;
-  background: #ebfaf3;
   font-size: 0.78rem;
   font-weight: 650;
   line-height: 1.45;
+}
+
+.form-response--success {
+  color: #227153;
+  background: #ebfaf3;
+}
+
+.form-response--error {
+  color: #a93c4a;
+  background: #fff0f2;
 }
 
 .form-actions {
@@ -350,6 +358,12 @@ button:focus-visible {
   background: #3e3ab8;
 }
 
+.secondary-button:disabled,
+.submit-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 .card-header {
   display: flex;
   align-items: center;
@@ -383,6 +397,25 @@ button:focus-visible {
 
 .card-content {
   min-height: 310px;
+}
+
+.catalog-response {
+  margin: 0;
+  padding: 11px 27px;
+  border-bottom: 1px solid #eceef3;
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.catalog-response--success {
+  color: #227153;
+  background: #ebfaf3;
+}
+
+.catalog-response--error {
+  color: #a93c4a;
+  background: #fff0f2;
 }
 
 .table-wrapper {
@@ -457,6 +490,52 @@ tbody tr:hover {
   color: #242e43;
   font-weight: 750;
   font-variant-numeric: tabular-nums;
+}
+
+.actions-heading {
+  width: 155px;
+  text-align: right;
+}
+
+.row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.edit-button,
+.delete-button {
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 9px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.edit-button {
+  color: #4e4acb;
+  background: #efefff;
+}
+
+.edit-button:hover:not(:disabled) {
+  background: #e1e0ff;
+}
+
+.delete-button {
+  color: #be4655;
+  background: #fff0f2;
+}
+
+.delete-button:hover:not(:disabled) {
+  color: #a73342;
+  background: #ffe2e6;
+}
+
+.edit-button:disabled,
+.delete-button:disabled {
+  cursor: wait;
+  opacity: 0.58;
 }
 
 .state-message {

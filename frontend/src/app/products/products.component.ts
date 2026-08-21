@@ -7,7 +7,11 @@ import {
   Validators
 } from '@angular/forms';
 import { finalize } from 'rxjs';
-import { Product } from '../models/product';
+import {
+  CreateProductRequest,
+  Product,
+  UpdateProductRequest
+} from '../models/product';
 import { ProductService } from '../services/product.service';
 
 @Component({
@@ -34,7 +38,14 @@ export class ProductsComponent implements OnInit {
 
   products: Product[] = [];
   isLoading = false;
+  isSubmitting = false;
+  editingProductId: number | null = null;
+  deletingProductId: number | null = null;
   errorMessage = '';
+  formSuccessMessage = '';
+  formErrorMessage = '';
+  catalogSuccessMessage = '';
+  catalogErrorMessage = '';
   hasAttemptedSubmit = false;
 
   constructor(private readonly productService: ProductService) {}
@@ -51,19 +62,140 @@ export class ProductsComponent implements OnInit {
     return this.productForm.controls.price;
   }
 
-  validateProductForm(): void {
+  get isEditing(): boolean {
+    return this.editingProductId !== null;
+  }
+
+  saveProduct(): void {
+    if (this.isSubmitting || this.deletingProductId !== null) {
+      return;
+    }
+
     this.hasAttemptedSubmit = true;
     this.productForm.markAllAsTouched();
+    this.formSuccessMessage = '';
+    this.formErrorMessage = '';
+
+    const price = this.priceControl.value;
+
+    if (this.productForm.invalid || price === null) {
+      return;
+    }
+
+    const request = {
+      name: this.nameControl.value.trim(),
+      price
+    };
+
+    if (this.editingProductId === null) {
+      this.createProduct(request);
+      return;
+    }
+
+    this.updateProduct(this.editingProductId, request);
+  }
+
+  startEditing(product: Product): void {
+    this.editingProductId = product.id;
+    this.productForm.setValue({
+      name: product.name,
+      price: product.price
+    });
+    this.hasAttemptedSubmit = false;
+    this.formSuccessMessage = '';
+    this.formErrorMessage = '';
   }
 
   resetProductForm(): void {
+    this.editingProductId = null;
     this.productForm.reset({ name: '', price: null });
     this.hasAttemptedSubmit = false;
+    this.formSuccessMessage = '';
+    this.formErrorMessage = '';
+  }
+
+  deleteProduct(product: Product): void {
+    if (this.isSubmitting || this.deletingProductId !== null) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Deseja realmente excluir o produto "${product.name}"?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.catalogSuccessMessage = '';
+    this.catalogErrorMessage = '';
+    this.deletingProductId = product.id;
+
+    this.productService.delete(product.id)
+      .pipe(finalize(() => this.deletingProductId = null))
+      .subscribe({
+        next: () => {
+          this.products = this.products.filter(item => item.id !== product.id);
+          this.catalogSuccessMessage = `Produto "${product.name}" excluído com sucesso.`;
+
+          if (this.editingProductId === product.id) {
+            this.resetProductForm();
+          }
+        },
+        error: () => {
+          this.catalogErrorMessage =
+            'Não foi possível excluir o produto. Tente novamente.';
+        }
+      });
+  }
+
+  private createProduct(request: CreateProductRequest): void {
+    this.isSubmitting = true;
+
+    this.productService.create(request)
+      .pipe(finalize(() => this.isSubmitting = false))
+      .subscribe({
+        next: product => {
+          this.products = [...this.products, product];
+          this.errorMessage = '';
+          this.productForm.reset({ name: '', price: null });
+          this.hasAttemptedSubmit = false;
+          this.formSuccessMessage = `Produto "${product.name}" cadastrado com sucesso.`;
+        },
+        error: () => {
+          this.formErrorMessage =
+            'Não foi possível cadastrar o produto. Verifique os dados e tente novamente.';
+        }
+      });
+  }
+
+  private updateProduct(id: number, request: UpdateProductRequest): void {
+    this.isSubmitting = true;
+
+    this.productService.update(id, request)
+      .pipe(finalize(() => this.isSubmitting = false))
+      .subscribe({
+        next: () => {
+          this.products = this.products.map(product =>
+            product.id === id ? { id, ...request } : product
+          );
+          this.editingProductId = null;
+          this.productForm.reset({ name: '', price: null });
+          this.hasAttemptedSubmit = false;
+          this.formSuccessMessage = `Produto "${request.name}" atualizado com sucesso.`;
+        },
+        error: () => {
+          this.formErrorMessage =
+            'Não foi possível atualizar o produto. Verifique os dados e tente novamente.';
+        }
+      });
   }
 
   loadProducts(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.catalogSuccessMessage = '';
+    this.catalogErrorMessage = '';
 
     this.productService.getAll()
       .pipe(finalize(() => this.isLoading = false))
