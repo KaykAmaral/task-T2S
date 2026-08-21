@@ -50,7 +50,93 @@
     </article>
   </section>
 
-  <section class="products-card" aria-labelledby="products-title">
+  <div class="workspace-grid">
+    <section class="form-card" aria-labelledby="product-form-title">
+      <div class="form-card-header">
+        <p class="form-eyebrow">Novo cadastro</p>
+        <h2 id="product-form-title">Dados do produto</h2>
+        <p>Preencha os campos para validar um novo produto.</p>
+      </div>
+
+      <form
+        class="product-form"
+        [formGroup]="productForm"
+        (ngSubmit)="validateProductForm()"
+        novalidate
+      >
+        <div class="form-field">
+          <div class="field-heading">
+            <label for="name">Nome</label>
+            <span>{{ nameControl.value.length }}/120</span>
+          </div>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            maxlength="120"
+            autocomplete="off"
+            placeholder="Ex.: Notebook"
+            [class.input-error]="nameControl.invalid && nameControl.touched"
+            [attr.aria-invalid]="nameControl.invalid && nameControl.touched"
+            aria-describedby="name-feedback"
+          />
+          <div id="name-feedback" class="field-feedback" aria-live="polite">
+            @if (nameControl.touched && nameControl.hasError('required')) {
+              <p class="field-error">Informe o nome do produto.</p>
+            } @else if (nameControl.touched && nameControl.hasError('pattern')) {
+              <p class="field-error">O nome não pode conter somente espaços.</p>
+            } @else if (nameControl.touched && nameControl.hasError('maxlength')) {
+              <p class="field-error">O nome deve ter no máximo 120 caracteres.</p>
+            } @else {
+              <p class="field-hint">Use um nome claro para identificar o produto.</p>
+            }
+          </div>
+        </div>
+
+        <div class="form-field">
+          <div class="field-heading">
+            <label for="price">Preço</label>
+            <span>R$</span>
+          </div>
+          <input
+            id="price"
+            type="number"
+            formControlName="price"
+            min="0.01"
+            step="0.01"
+            inputmode="decimal"
+            placeholder="0,00"
+            [class.input-error]="priceControl.invalid && priceControl.touched"
+            [attr.aria-invalid]="priceControl.invalid && priceControl.touched"
+            aria-describedby="price-feedback"
+          />
+          <div id="price-feedback" class="field-feedback" aria-live="polite">
+            @if (priceControl.touched && priceControl.hasError('required')) {
+              <p class="field-error">Informe o preço do produto.</p>
+            } @else if (priceControl.touched && priceControl.hasError('min')) {
+              <p class="field-error">O preço deve ser maior ou igual a R$ 0,01.</p>
+            } @else {
+              <p class="field-hint">Informe o valor com até duas casas decimais.</p>
+            }
+          </div>
+        </div>
+
+        @if (hasAttemptedSubmit && productForm.valid) {
+          <p class="form-ready" role="status">
+            Dados válidos. O formulário está pronto para ser enviado.
+          </p>
+        }
+
+        <div class="form-actions">
+          <button class="secondary-button" type="button" (click)="resetProductForm()">
+            Limpar
+          </button>
+          <button class="submit-button" type="submit">Validar dados</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="products-card" aria-labelledby="products-title">
     <div class="card-header">
       <div>
         <h2 id="products-title">Catálogo de produtos</h2>
@@ -115,5 +201,6 @@
         </div>
       }
     </div>
-  </section>
+    </section>
+  </div>
 </main>
