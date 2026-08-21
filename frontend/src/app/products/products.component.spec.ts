@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { ProductService } from '../services/product.service';
 import { ProductsComponent } from './products.component';
 
@@ -72,5 +72,25 @@ describe('ProductsComponent', () => {
     expect(productService.delete).toHaveBeenCalledWith(9);
     expect(component.products).toEqual([]);
     expect(component.catalogSuccessMessage).toContain('excluído com sucesso');
+  });
+
+  it('should preserve current products when a refresh fails', () => {
+    const currentProducts = [{ id: 3, name: 'Monitor', price: 900 }];
+    const refreshResult = new Subject<typeof currentProducts>();
+    component.products = currentProducts;
+    component.hasLoadedProducts = true;
+    productService.getAll.and.returnValue(refreshResult);
+
+    component.loadProducts();
+
+    expect(component.isLoading).toBeFalse();
+    expect(component.isRefreshing).toBeTrue();
+    expect(component.products).toEqual(currentProducts);
+
+    refreshResult.error(new Error('API unavailable'));
+
+    expect(component.isRefreshing).toBeFalse();
+    expect(component.products).toEqual(currentProducts);
+    expect(component.catalogErrorMessage).toContain('dados anteriores foram mantidos');
   });
 });

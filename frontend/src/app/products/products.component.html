@@ -17,11 +17,11 @@
       <button
         class="refresh-button"
         type="button"
-        [disabled]="isLoading"
+        [disabled]="isInterfaceBusy"
         (click)="loadProducts()"
       >
         <span aria-hidden="true">↻</span>
-        {{ isLoading ? 'Atualizando...' : 'Atualizar lista' }}
+        {{ isLoading || isRefreshing ? 'Atualizando...' : 'Atualizar lista' }}
       </button>
     </div>
   </header>
@@ -44,7 +44,13 @@
       <div>
         <span class="summary-label">Integração</span>
         <strong>
-          {{ isLoading ? 'Verificando...' : errorMessage ? 'API indisponível' : 'API conectada' }}
+          {{ isLoading
+            ? 'Verificando...'
+            : isRefreshing
+              ? 'Atualizando...'
+              : errorMessage
+                ? 'API indisponível'
+                : 'API conectada' }}
         </strong>
       </div>
     </article>
@@ -68,6 +74,7 @@
         class="product-form"
         [formGroup]="productForm"
         (ngSubmit)="saveProduct()"
+        [attr.aria-busy]="isSubmitting"
         novalidate
       >
         <div class="form-field">
@@ -82,7 +89,7 @@
             maxlength="120"
             autocomplete="off"
             placeholder="Ex.: Notebook"
-            [readOnly]="isSubmitting || deletingProductId !== null"
+            [readOnly]="isInterfaceBusy"
             [class.input-error]="nameControl.invalid && nameControl.touched"
             [attr.aria-invalid]="nameControl.invalid && nameControl.touched"
             aria-describedby="name-feedback"
@@ -113,7 +120,7 @@
             step="0.01"
             inputmode="decimal"
             placeholder="0,00"
-            [readOnly]="isSubmitting || deletingProductId !== null"
+            [readOnly]="isInterfaceBusy"
             [class.input-error]="priceControl.invalid && priceControl.touched"
             [attr.aria-invalid]="priceControl.invalid && priceControl.touched"
             aria-describedby="price-feedback"
@@ -143,7 +150,7 @@
           <button
             class="secondary-button"
             type="button"
-            [disabled]="isSubmitting || deletingProductId !== null"
+            [disabled]="isInterfaceBusy"
             (click)="resetProductForm()"
           >
             {{ isEditing ? 'Cancelar' : 'Limpar' }}
@@ -151,7 +158,7 @@
           <button
             class="submit-button"
             type="submit"
-            [disabled]="isSubmitting || deletingProductId !== null"
+            [disabled]="isInterfaceBusy"
           >
             {{ isSubmitting
               ? (isEditing ? 'Salvando...' : 'Cadastrando...')
@@ -182,7 +189,14 @@
       </p>
     }
 
-    <div class="card-content" aria-live="polite">
+    @if (isRefreshing) {
+      <div class="refresh-progress" role="status">
+        <span></span>
+        Atualizando produtos sem ocultar os dados atuais...
+      </div>
+    }
+
+    <div class="card-content" aria-live="polite" [attr.aria-busy]="isLoading || isRefreshing">
       @if (isLoading) {
         <div class="state-message">
           <span class="loader" aria-hidden="true"></span>
@@ -205,7 +219,7 @@
           <p>Os produtos criados aparecerão aqui.</p>
         </div>
       } @else {
-        <div class="table-wrapper">
+        <div class="table-wrapper" [class.table-wrapper--refreshing]="isRefreshing">
           <table>
             <thead>
               <tr>
@@ -217,7 +231,7 @@
             </thead>
             <tbody>
               @for (product of products; track product.id) {
-                <tr>
+                <tr [class.row--pending]="deletingProductId === product.id">
                   <td class="product-id">#{{ product.id }}</td>
                   <td>
                     <div class="product-name">
@@ -235,7 +249,7 @@
                       <button
                         type="button"
                         class="edit-button"
-                        [disabled]="isSubmitting || deletingProductId !== null"
+                        [disabled]="isInterfaceBusy"
                         (click)="startEditing(product)"
                       >
                         Editar
@@ -243,7 +257,7 @@
                       <button
                         type="button"
                         class="delete-button"
-                        [disabled]="isSubmitting || deletingProductId !== null"
+                        [disabled]="isInterfaceBusy"
                         (click)="deleteProduct(product)"
                       >
                         {{ deletingProductId === product.id ? 'Excluindo...' : 'Excluir' }}

@@ -38,7 +38,9 @@ export class ProductsComponent implements OnInit {
 
   products: Product[] = [];
   isLoading = false;
+  isRefreshing = false;
   isSubmitting = false;
+  hasLoadedProducts = false;
   editingProductId: number | null = null;
   deletingProductId: number | null = null;
   errorMessage = '';
@@ -66,8 +68,15 @@ export class ProductsComponent implements OnInit {
     return this.editingProductId !== null;
   }
 
+  get isInterfaceBusy(): boolean {
+    return this.isLoading
+      || this.isRefreshing
+      || this.isSubmitting
+      || this.deletingProductId !== null;
+  }
+
   saveProduct(): void {
-    if (this.isSubmitting || this.deletingProductId !== null) {
+    if (this.isInterfaceBusy) {
       return;
     }
 
@@ -115,7 +124,7 @@ export class ProductsComponent implements OnInit {
   }
 
   deleteProduct(product: Product): void {
-    if (this.isSubmitting || this.deletingProductId !== null) {
+    if (this.isInterfaceBusy) {
       return;
     }
 
@@ -192,18 +201,37 @@ export class ProductsComponent implements OnInit {
   }
 
   loadProducts(): void {
-    this.isLoading = true;
+    if (this.isInterfaceBusy) {
+      return;
+    }
+
+    const isInitialLoad = !this.hasLoadedProducts;
+
+    this.isLoading = isInitialLoad;
+    this.isRefreshing = !isInitialLoad;
     this.errorMessage = '';
     this.catalogSuccessMessage = '';
     this.catalogErrorMessage = '';
 
     this.productService.getAll()
-      .pipe(finalize(() => this.isLoading = false))
+      .pipe(finalize(() => {
+        this.isLoading = false;
+        this.isRefreshing = false;
+      }))
       .subscribe({
-        next: products => this.products = products,
+        next: products => {
+          this.products = products;
+          this.hasLoadedProducts = true;
+        },
         error: () => {
-          this.errorMessage =
-            'Não foi possível carregar os produtos. Verifique se o backend está online.';
+          if (isInitialLoad) {
+            this.errorMessage =
+              'Não foi possível carregar os produtos. Verifique se o backend está online.';
+            return;
+          }
+
+          this.catalogErrorMessage =
+            'Não foi possível atualizar a lista. Os dados anteriores foram mantidos.';
         }
       });
   }

@@ -418,8 +418,36 @@ button:focus-visible {
   background: #fff0f2;
 }
 
+.refresh-progress {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  padding: 9px 27px;
+  border-bottom: 1px solid #e4e4fb;
+  color: #5652c9;
+  background: #f5f5ff;
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.refresh-progress span {
+  width: 13px;
+  height: 13px;
+  border: 2px solid #d6d5fb;
+  border-top-color: #5652c9;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
 .table-wrapper {
   overflow-x: auto;
+  transition: opacity 160ms ease;
+}
+
+.table-wrapper--refreshing {
+  opacity: 0.58;
+  pointer-events: none;
 }
 
 table {
@@ -454,6 +482,12 @@ tbody tr {
 
 tbody tr:hover {
   background: #fafaff;
+}
+
+tbody tr.row--pending {
+  opacity: 0.48;
+  background: #fff7f8;
+  pointer-events: none;
 }
 
 .product-id {
