@@ -1,7 +1,7 @@
 :host {
   display: block;
   min-height: 100vh;
-  color: #172033;
+  color: #1f2937;
 }
 
 .page-shell {
@@ -19,7 +19,7 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 44px;
-  color: #26324a;
+  color: #1f2937;
   font-size: 0.9rem;
   font-weight: 750;
   letter-spacing: -0.01em;
@@ -30,10 +30,10 @@
   width: 34px;
   height: 34px;
   place-items: center;
-  border-radius: 10px;
+  border-radius: 8px;
   color: #fff;
-  background: linear-gradient(145deg, #5956e9, #3732b9);
-  box-shadow: 0 8px 18px rgb(67 62 195 / 24%);
+  background: linear-gradient(135deg, #2563eb 0 72%, #f97316 72%);
+  box-shadow: 0 7px 16px rgb(37 99 235 / 20%);
 }
 
 .header-content {
@@ -45,7 +45,7 @@
 
 .eyebrow {
   margin: 0 0 10px;
-  color: #5b57d9;
+  color: #ea580c;
   font-size: 0.74rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -60,7 +60,7 @@ p {
 
 h1 {
   margin-bottom: 12px;
-  color: #172033;
+  color: #111827;
   font-size: clamp(2.2rem, 6vw, 3.7rem);
   font-weight: 780;
   letter-spacing: -0.055em;
@@ -70,7 +70,7 @@ h1 {
 .subtitle {
   max-width: 650px;
   margin-bottom: 0;
-  color: #697386;
+  color: #64748b;
   font-size: 1rem;
   line-height: 1.65;
 }
@@ -82,7 +82,7 @@ button {
 }
 
 button:focus-visible {
-  outline: 3px solid rgb(89 86 233 / 25%);
+  outline: 3px solid rgb(37 99 235 / 22%);
   outline-offset: 3px;
 }
 
@@ -94,10 +94,10 @@ button:focus-visible {
   gap: 9px;
   min-height: 44px;
   padding: 0 18px;
-  border-radius: 12px;
+  border-radius: 9px;
   color: #fff;
-  background: #4e4acb;
-  box-shadow: 0 8px 18px rgb(67 62 195 / 18%);
+  background: #2563eb;
+  box-shadow: 0 7px 16px rgb(37 99 235 / 18%);
   font-size: 0.88rem;
   font-weight: 700;
   transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
@@ -106,8 +106,8 @@ button:focus-visible {
 .refresh-button:hover:not(:disabled),
 .retry-button:hover {
   transform: translateY(-1px);
-  background: #3e3ab8;
-  box-shadow: 0 11px 24px rgb(67 62 195 / 24%);
+  background: #1d4ed8;
+  box-shadow: 0 9px 20px rgb(37 99 235 / 24%);
 }
 
 .refresh-button:disabled {
@@ -128,10 +128,10 @@ button:focus-visible {
   gap: 15px;
   min-height: 90px;
   padding: 18px 20px;
-  border: 1px solid #e7e9f1;
-  border-radius: 17px;
-  background: rgb(255 255 255 / 82%);
-  box-shadow: 0 8px 30px rgb(39 48 77 / 5%);
+  border: 1px solid #e2e8f0;
+  border-radius: 13px;
+  background: rgb(255 255 255 / 88%);
+  box-shadow: 0 6px 22px rgb(15 23 42 / 4%);
 }
 
 .summary-icon {
@@ -139,14 +139,14 @@ button:focus-visible {
   width: 46px;
   height: 46px;
   place-items: center;
-  border-radius: 13px;
-  color: #4e4acb;
-  background: #efefff;
+  border-radius: 10px;
+  color: #ea580c;
+  background: #fff7ed;
   font-size: 1.3rem;
 }
 
 .summary-card--muted {
-  background: rgb(249 250 252 / 78%);
+  background: rgb(248 250 252 / 88%);
 }
 
 .status-dot {
@@ -172,7 +172,7 @@ button:focus-visible {
 }
 
 .summary-label {
-  color: #7a8497;
+  color: #64748b;
   font-size: 0.77rem;
   font-weight: 650;
   letter-spacing: 0.025em;
@@ -180,7 +180,7 @@ button:focus-visible {
 }
 
 .summary-card strong {
-  color: #242e43;
+  color: #1f2937;
   font-size: 1.25rem;
 }
 
@@ -193,16 +193,25 @@ button:focus-visible {
 
 .form-card,
 .products-card {
+  min-width: 0;
   overflow: hidden;
-  border: 1px solid #e5e7ef;
-  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
   background: #fff;
-  box-shadow: 0 18px 55px rgb(35 43 68 / 8%);
+  box-shadow: 0 10px 32px rgb(15 23 42 / 6%);
+}
+
+.form-card {
+  border-top: 3px solid #f97316;
+}
+
+.products-card {
+  border-top: 3px solid #2563eb;
 }
 
 .form-card-header {
   padding: 24px;
-  border-bottom: 1px solid #eceef3;
+  border-bottom: 1px solid #e8edf3;
 }
 
 .form-card-header h2 {
@@ -213,14 +222,14 @@ button:focus-visible {
 
 .form-card-header p {
   margin-bottom: 0;
-  color: #7b8495;
+  color: #64748b;
   font-size: 0.87rem;
   line-height: 1.5;
 }
 
 .form-card-header .form-eyebrow {
   margin-bottom: 8px;
-  color: #5b57d9;
+  color: #ea580c;
   font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.11em;
@@ -248,13 +257,13 @@ button:focus-visible {
 }
 
 .field-heading label {
-  color: #303a4f;
+  color: #334155;
   font-size: 0.86rem;
   font-weight: 750;
 }
 
 .field-heading span {
-  color: #9299a8;
+  color: #94a3b8;
   font-size: 0.72rem;
 }
 
@@ -262,10 +271,10 @@ button:focus-visible {
   width: 100%;
   height: 46px;
   padding: 0 13px;
-  border: 1px solid #d9dce6;
-  border-radius: 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   outline: none;
-  color: #263047;
+  color: #1f2937;
   background: #fff;
   font: inherit;
   font-size: 0.9rem;
@@ -273,12 +282,12 @@ button:focus-visible {
 }
 
 .form-field input::placeholder {
-  color: #a7adba;
+  color: #94a3b8;
 }
 
 .form-field input:focus {
-  border-color: #615de0;
-  box-shadow: 0 0 0 3px rgb(89 86 233 / 12%);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 11%);
 }
 
 .form-field input.input-error {
@@ -308,7 +317,7 @@ button:focus-visible {
 .form-response {
   margin: -4px 0 0;
   padding: 11px 13px;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 0.78rem;
   font-weight: 650;
   line-height: 1.45;
@@ -334,28 +343,28 @@ button:focus-visible {
 .submit-button {
   min-height: 43px;
   padding: 0 14px;
-  border-radius: 11px;
+  border-radius: 8px;
   font-size: 0.82rem;
   font-weight: 750;
 }
 
 .secondary-button {
-  color: #596277;
-  background: #f0f1f5;
+  color: #475569;
+  background: #f1f5f9;
 }
 
 .secondary-button:hover {
-  background: #e7e9ef;
+  background: #e2e8f0;
 }
 
 .submit-button {
   color: #fff;
-  background: #4e4acb;
-  box-shadow: 0 8px 18px rgb(67 62 195 / 16%);
+  background: #2563eb;
+  box-shadow: 0 7px 16px rgb(37 99 235 / 16%);
 }
 
 .submit-button:hover {
-  background: #3e3ab8;
+  background: #1d4ed8;
 }
 
 .secondary-button:disabled,
@@ -370,7 +379,7 @@ button:focus-visible {
   justify-content: space-between;
   gap: 20px;
   padding: 24px 27px;
-  border-bottom: 1px solid #eceef3;
+  border-bottom: 1px solid #e8edf3;
 }
 
 .card-header h2 {
@@ -381,15 +390,15 @@ button:focus-visible {
 
 .card-header p {
   margin-bottom: 0;
-  color: #7b8495;
+  color: #64748b;
   font-size: 0.87rem;
 }
 
 .record-count {
   padding: 7px 11px;
   border-radius: 999px;
-  color: #5753c5;
-  background: #f0f0ff;
+  color: #1d4ed8;
+  background: #eff6ff;
   font-size: 0.75rem;
   font-weight: 750;
   white-space: nowrap;
@@ -402,7 +411,7 @@ button:focus-visible {
 .catalog-response {
   margin: 0;
   padding: 11px 27px;
-  border-bottom: 1px solid #eceef3;
+  border-bottom: 1px solid #e8edf3;
   font-size: 0.78rem;
   font-weight: 650;
   line-height: 1.45;
@@ -424,9 +433,9 @@ button:focus-visible {
   gap: 9px;
   margin: 0;
   padding: 9px 27px;
-  border-bottom: 1px solid #e4e4fb;
-  color: #5652c9;
-  background: #f5f5ff;
+  border-bottom: 1px solid #dbeafe;
+  color: #1d4ed8;
+  background: #eff6ff;
   font-size: 0.75rem;
   font-weight: 650;
 }
@@ -434,8 +443,8 @@ button:focus-visible {
 .refresh-progress span {
   width: 13px;
   height: 13px;
-  border: 2px solid #d6d5fb;
-  border-top-color: #5652c9;
+  border: 2px solid #bfdbfe;
+  border-top-color: #2563eb;
   border-radius: 50%;
   animation: spin 700ms linear infinite;
 }
@@ -462,8 +471,8 @@ td {
 }
 
 th {
-  color: #858da0;
-  background: #fafbfc;
+  color: #64748b;
+  background: #f8fafc;
   font-size: 0.72rem;
   font-weight: 750;
   letter-spacing: 0.075em;
@@ -471,8 +480,8 @@ th {
 }
 
 td {
-  border-top: 1px solid #eff0f4;
-  color: #3b4559;
+  border-top: 1px solid #eef2f6;
+  color: #334155;
   font-size: 0.9rem;
 }
 
@@ -481,7 +490,7 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background: #fafaff;
+  background: #f8fbff;
 }
 
 tbody tr.row--pending {
@@ -492,7 +501,7 @@ tbody tr.row--pending {
 
 .product-id {
   width: 110px;
-  color: #8b93a4;
+  color: #94a3b8;
   font-variant-numeric: tabular-nums;
 }
 
@@ -508,20 +517,20 @@ tbody tr.row--pending {
   width: 36px;
   height: 36px;
   place-items: center;
-  border-radius: 11px;
-  color: #4d49bd;
-  background: #eeeeff;
+  border-radius: 8px;
+  color: #1d4ed8;
+  background: #eff6ff;
   font-size: 0.82rem;
   font-weight: 800;
 }
 
 .product-name strong {
-  color: #2d374b;
+  color: #1f2937;
   font-weight: 700;
 }
 
 .product-price {
-  color: #242e43;
+  color: #1f2937;
   font-weight: 750;
   font-variant-numeric: tabular-nums;
 }
@@ -541,19 +550,19 @@ tbody tr.row--pending {
 .delete-button {
   min-height: 34px;
   padding: 0 11px;
-  border-radius: 9px;
+  border-radius: 7px;
   font-size: 0.75rem;
   font-weight: 700;
   transition: background 140ms ease, color 140ms ease;
 }
 
 .edit-button {
-  color: #4e4acb;
-  background: #efefff;
+  color: #1d4ed8;
+  background: #eff6ff;
 }
 
 .edit-button:hover:not(:disabled) {
-  background: #e1e0ff;
+  background: #dbeafe;
 }
 
 .delete-button {
@@ -601,9 +610,9 @@ tbody tr.row--pending {
   width: 48px;
   height: 48px;
   place-items: center;
-  border-radius: 15px;
-  color: #6864d8;
-  background: #f0f0ff;
+  border-radius: 10px;
+  color: #ea580c;
+  background: #fff7ed;
   font-size: 1.35rem;
   font-weight: 750;
 }
@@ -621,8 +630,8 @@ tbody tr.row--pending {
 .loader {
   width: 35px;
   height: 35px;
-  border: 3px solid #e3e3fb;
-  border-top-color: #5652d4;
+  border: 3px solid #dbeafe;
+  border-top-color: #2563eb;
   border-radius: 50%;
   animation: spin 700ms linear infinite;
 }
@@ -635,7 +644,7 @@ tbody tr.row--pending {
 
 @media (max-width: 900px) {
   .workspace-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

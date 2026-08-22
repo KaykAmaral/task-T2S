@@ -1,7 +1,7 @@
 :root {
   font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: #172033;
-  background: #f5f6fa;
+  color: #1f2937;
+  background: #f6f7f9;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -15,8 +15,9 @@ html {
   min-width: 320px;
   min-height: 100%;
   background:
-    radial-gradient(circle at 8% 0%, rgb(91 87 217 / 8%), transparent 27rem),
-    #f5f6fa;
+    radial-gradient(circle at 8% 0%, rgb(37 99 235 / 6%), transparent 28rem),
+    radial-gradient(circle at 92% 8%, rgb(249 115 22 / 4%), transparent 24rem),
+    #f6f7f9;
 }
 
 body {
