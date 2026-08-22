@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { ProductService } from '../services/product.service';
 import { ProductsComponent } from './products.component';
 
@@ -42,6 +42,32 @@ describe('ProductsComponent', () => {
     expect(component.formSuccessMessage).toContain('cadastrado com sucesso');
   });
 
+  it('should not submit an invalid form', () => {
+    component.saveProduct();
+
+    expect(component.productForm.invalid).toBeTrue();
+    expect(component.nameControl.touched).toBeTrue();
+    expect(component.priceControl.touched).toBeTrue();
+    expect(productService.create).not.toHaveBeenCalled();
+    expect(productService.update).not.toHaveBeenCalled();
+  });
+
+  it('should keep the form data when creation fails', () => {
+    productService.create.and.returnValue(
+      throwError(() => new Error('API unavailable'))
+    );
+    component.productForm.setValue({ name: 'Webcam', price: 400 });
+
+    component.saveProduct();
+
+    expect(component.productForm.getRawValue()).toEqual({
+      name: 'Webcam',
+      price: 400
+    });
+    expect(component.formErrorMessage).toContain('Não foi possível cadastrar');
+    expect(component.isSubmitting).toBeFalse();
+  });
+
   it('should update the selected product in the list', () => {
     const product = { id: 7, name: 'Mouse', price: 100 };
     component.products = [product];
@@ -72,6 +98,17 @@ describe('ProductsComponent', () => {
     expect(productService.delete).toHaveBeenCalledWith(9);
     expect(component.products).toEqual([]);
     expect(component.catalogSuccessMessage).toContain('excluído com sucesso');
+  });
+
+  it('should not delete a product when confirmation is canceled', () => {
+    const product = { id: 10, name: 'Headset', price: 300 };
+    component.products = [product];
+    spyOn(window, 'confirm').and.returnValue(false);
+
+    component.deleteProduct(product);
+
+    expect(productService.delete).not.toHaveBeenCalled();
+    expect(component.products).toEqual([product]);
   });
 
   it('should preserve current products when a refresh fails', () => {
