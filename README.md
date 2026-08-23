@@ -1,21 +1,41 @@
-# Product API
+# Product Management App
 
-Backend de uma aplicação de cadastro de produtos, desenvolvido com ASP.NET Core
-Web API e persistência em Oracle. A infraestrutura local é executada com Docker
-Compose.
+Aplicação full stack para cadastro e gerenciamento de produtos. O frontend em
+Angular consome uma API ASP.NET Core, que persiste os dados em Oracle. Todo o
+ambiente pode ser iniciado com um único Docker Compose.
 
-O escopo atual deste documento é o backend. A pasta `frontend/` está reservada
-para a aplicação Angular.
+## Funcionalidades
+
+- Listagem de produtos com estados de carregamento, vazio e erro.
+- Cadastro com formulário reativo e validação no frontend e no backend.
+- Edição e exclusão com feedback visual.
+- Atualização da listagem sem ocultar os dados existentes.
+- Interface responsiva nas cores azul e laranja.
+- API com exatamente os cinco endpoints solicitados.
+- Testes automatizados de frontend e backend.
 
 ## Tecnologias
 
-- .NET 9
-- ASP.NET Core Web API
+### Frontend
+
+- Angular 18 e TypeScript
+- Reactive Forms
+- HttpClient e RxJS
+- Jasmine e Karma
+- Nginx na imagem de produção
+
+### Backend
+
+- .NET 9 e ASP.NET Core Web API
 - Entity Framework Core 9
 - Oracle Entity Framework Core
+- xUnit e `WebApplicationFactory`
+
+### Infraestrutura
+
 - Oracle Database Free
 - Docker e Docker Compose
-- xUnit
+- Imagens multi-stage para frontend e backend
 
 ## Estrutura do repositório
 
@@ -24,39 +44,55 @@ para a aplicação Angular.
 ├── backend/
 │   ├── Controllers/          # Endpoints HTTP
 │   ├── Data/                 # DbContext e migrations
-│   ├── DTOs/                 # Contratos de entrada e saída da API
+│   ├── DTOs/                 # Contratos de entrada e saída
 │   ├── Models/               # Entidades persistidas
-│   ├── ProductApi.Tests/     # Testes funcionais da API
-│   ├── Services/             # Regras do CRUD e acesso via EF Core
+│   ├── ProductApi.Tests/     # Testes da API
+│   ├── Services/             # Regras do CRUD
+│   └── Dockerfile
+├── frontend/
+│   ├── src/app/models/       # Tipos TypeScript
+│   ├── src/app/products/     # Tela, formulário e testes do CRUD
+│   ├── src/app/services/     # Comunicação HTTP e testes
 │   ├── Dockerfile
-│   └── Program.cs            # Configuração e pipeline da aplicação
-├── frontend/                 # Reservado para o Angular
+│   └── nginx.conf
 └── infra/
     ├── .env.example
     └── compose.yaml
 ```
 
-O fluxo principal de uma requisição é:
+O fluxo principal é:
+
+```text
+Navegador
+   ↓ HTTP/JSON
+Angular :4200
+   ↓
+ASP.NET Core :5297
+   ↓
+ProductService → EF Core
+   ↓
+Oracle :1521
+```
+
+No backend, o fluxo de uma requisição é:
 
 ```text
 HTTP → ProductsController → ProductService → AppDbContext → Oracle
 ```
 
-- O controller trata o contrato HTTP e os status codes.
-- O service executa o CRUD e converte entidades em DTOs.
-- O `AppDbContext` mapeia `Product` para a tabela `PRODUCTS`.
-- O EF Core gera e executa os comandos SQL para o Oracle.
-
-## Como executar com Docker Compose
+## Execução completa com Docker Compose
 
 ### Pré-requisitos
 
 - Docker Desktop ou Docker Engine com Docker Compose.
-- Portas `5297` e `1521` disponíveis.
+- Portas `4200`, `5297` e `1521` disponíveis.
+
+Node.js, .NET e Oracle não precisam estar instalados para a execução pelo
+Compose.
 
 ### 1. Configure as credenciais locais
 
-No PowerShell:
+No PowerShell, a partir da raiz do repositório:
 
 ```powershell
 cd infra
@@ -71,9 +107,9 @@ APP_USER=PRODUCT_APP
 APP_USER_PASSWORD=uma-senha-da-aplicacao
 ```
 
-O arquivo `.env` está no `.gitignore` e não deve ser versionado.
+O arquivo `.env` está ignorado pelo Git e não deve ser versionado.
 
-### 2. Construa e inicie os containers
+### 2. Construa e inicie a aplicação
 
 Ainda dentro de `infra/`:
 
@@ -81,35 +117,48 @@ Ainda dentro de `infra/`:
 docker compose up -d --build
 ```
 
-Na primeira inicialização, o download e a preparação do Oracle podem levar
-alguns minutos. O Compose aguarda o healthcheck do banco antes de iniciar a API.
+Na primeira execução, o download e a preparação do Oracle podem levar alguns
+minutos. O backend aguarda o healthcheck do banco e aplica as migrations
+pendentes ao iniciar. O frontend é iniciado depois que o container do backend
+entra em execução.
 
-As migrations do EF Core são aplicadas automaticamente pelo backend quando ele
-é iniciado pelo Compose.
+### 3. Acesse os serviços
 
-### 3. Verifique os containers
+| Serviço | Endereço |
+|---|---|
+| Frontend | `http://localhost:4200` |
+| Backend | `http://localhost:5297` |
+| Oracle | `localhost:1521/FREEPDB1` |
+
+O navegador executa o JavaScript do Angular e chama
+`http://localhost:5297/api`. Por isso a URL da API usa `localhost`, mesmo que o
+frontend seja servido por um container Nginx.
+
+### 4. Verifique containers e logs
 
 ```powershell
 docker compose ps
+docker compose logs -f
+```
+
+Para acompanhar um serviço específico:
+
+```powershell
+docker compose logs -f frontend
 docker compose logs -f backend
+docker compose logs -f oracle
 ```
 
-A API estará disponível em:
+### 5. Pare a aplicação
 
-```text
-http://localhost:5297
+```powershell
+docker compose down
 ```
 
-O tráfego do Compose funciona da seguinte maneira:
+Esse comando remove containers e rede, mas preserva o volume do Oracle. Não
+use `docker compose down --volumes` se quiser manter os dados.
 
-```text
-localhost:5297 → backend:8080 → oracle:1521/FREEPDB1
-```
-
-Dentro da rede do Compose, `oracle` é o hostname do banco. `localhost` dentro
-do container do backend apontaria para o próprio container.
-
-## Endpoints
+## API
 
 A API possui exatamente cinco endpoints:
 
@@ -121,9 +170,9 @@ A API possui exatamente cinco endpoints:
 | `PUT` | `/api/products/{id}` | `204 No Content` | `400 Bad Request`, `404 Not Found` |
 | `DELETE` | `/api/products/{id}` | `204 No Content` | `404 Not Found` |
 
-O `POST` também retorna o header `Location` apontando para o recurso criado.
+Não existem endpoints adicionais para produtos.
 
-### Contrato de criação e atualização
+### Criação e atualização
 
 ```json
 {
@@ -135,9 +184,10 @@ O `POST` também retorna o header `Location` apontando para o recurso criado.
 Validações:
 
 - `name` é obrigatório e aceita no máximo 120 caracteres.
+- `name` não pode conter somente espaços.
 - `price` deve estar entre `0.01` e `9999999999999999.99`.
 
-### Contrato de resposta
+### Resposta
 
 ```json
 {
@@ -147,101 +197,104 @@ Validações:
 }
 ```
 
+Requests inválidos utilizam o formato Problem Details
+(`application/problem+json`). Erros inesperados retornam `500 Internal Server
+Error` sem expor stack trace.
+
 ## Exemplos com cURL
 
-Os exemplos abaixo usam `curl.exe` para evitar o alias `curl` do Windows
-PowerShell.
-
-### Listar produtos
+Os exemplos usam `curl.exe` para evitar o alias `curl` do Windows PowerShell.
 
 ```powershell
+# Listar
 curl.exe http://localhost:5297/api/products
-```
 
-### Buscar um produto
-
-```powershell
+# Buscar por ID
 curl.exe http://localhost:5297/api/products/1
-```
 
-### Criar um produto
-
-```powershell
+# Criar
 curl.exe -i -X POST http://localhost:5297/api/products `
   -H "Content-Type: application/json" `
   -d '{"name":"Notebook","price":3500.00}'
-```
 
-### Atualizar um produto
-
-```powershell
+# Atualizar
 curl.exe -i -X PUT http://localhost:5297/api/products/1 `
   -H "Content-Type: application/json" `
   -d '{"name":"Notebook Pro","price":4200.00}'
-```
 
-### Excluir um produto
-
-```powershell
+# Excluir
 curl.exe -i -X DELETE http://localhost:5297/api/products/1
 ```
 
-## Erros e validação
+## Desenvolvimento local do frontend
 
-Requests inválidos e erros HTTP são retornados no formato Problem Details
-(`application/problem+json`). Exemplo simplificado de validação:
+Pré-requisitos:
 
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-  "title": "One or more validation errors occurred.",
-  "status": 400,
-  "errors": {
-    "Name": [
-      "The Name field is required."
-    ]
-  }
-}
+- Node.js 22
+- npm
+- Backend disponível em `http://localhost:5297`
+
+Se quiser executar apenas Oracle e backend pelo Compose:
+
+```powershell
+cd infra
+docker compose up -d oracle backend
+cd ..
 ```
 
-Exceções inesperadas produzem `500 Internal Server Error` sem expor stack trace
-ou detalhes internos na resposta.
+```powershell
+# Se ainda estiver na raiz do repositório:
+cd frontend
+npm ci
+npm start
+```
 
-## CORS e HTTPS
+Acesse `http://localhost:4200`. O servidor recarrega a página quando os arquivos
+são modificados.
 
-O backend permite requisições do frontend em `http://localhost:4200` para os
-métodos `GET`, `POST`, `PUT` e `DELETE`.
+Se o PowerShell bloquear `npm.ps1`, utilize `npm.cmd` nos mesmos comandos.
 
-O Compose publica HTTP para o ambiente local. Em uma implantação real, HTTPS
-deve ser terminado e redirecionado por um proxy reverso ou ingress antes de a
-requisição chegar ao container.
+Detalhes adicionais estão em [frontend/README.md](frontend/README.md).
 
 ## Testes automatizados
 
-Os testes exigem o SDK do .NET 9, mas não precisam do Docker ou do Oracle:
+### Backend
+
+Requer o SDK do .NET 9, mas não depende do Docker nem do Oracle:
 
 ```powershell
 dotnet test backend\ProductApi.Tests\ProductApi.Tests.csproj
 ```
 
-A suíte utiliza xUnit e `WebApplicationFactory`, que inicia a aplicação em
-memória. O `IProductService` real é substituído por uma implementação fake, por
-isso os testes verificam a camada HTTP sem depender do banco.
+Os nove testes utilizam xUnit e `WebApplicationFactory`. Eles cobrem os cinco
+endpoints, validações, status codes, Problem Details, CORS, tratamento de erros
+e a garantia de que não existem rotas adicionais.
 
-Os cenários cobertos incluem:
+### Frontend
 
-- Os cinco endpoints e seus principais status codes.
-- Criação, leitura, atualização e exclusão.
-- Validação automática dos DTOs.
-- Respostas Problem Details para `400`, `404` e `500`.
-- Política de CORS.
-- Ausência de detalhes internos em erros inesperados.
-- Garantia de que somente os cinco endpoints obrigatórios estão mapeados.
+Requer Node.js 22 e Chrome ou Edge:
+
+```powershell
+cd frontend
+npm ci
+$env:CHROME_BIN = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+npm test -- --watch=false --browsers=ChromeHeadless
+npm run build
+```
+
+Os 14 testes cobrem o serviço HTTP, os cinco endpoints consumidos, validação do
+formulário, criação, edição, exclusão e estados de erro.
 
 ## Migrations
 
-As migrations estão em `backend/Data/Migrations`. Para criar uma nova migration
-durante o desenvolvimento:
+As migrations ficam em `backend/Data/Migrations`. No Compose, migrations
+pendentes são aplicadas automaticamente por meio de:
+
+```text
+Database__ApplyMigrationsOnStartup=true
+```
+
+Para criar uma migration durante o desenvolvimento:
 
 ```powershell
 dotnet tool restore
@@ -251,27 +304,59 @@ dotnet ef migrations add NomeDaMigration `
   --output-dir Data\Migrations
 ```
 
-No Compose, migrations pendentes são aplicadas automaticamente na inicialização
-da API por meio da configuração:
+## CORS
 
-```text
-Database__ApplyMigrationsOnStartup=true
-```
+O backend aceita a origem `http://localhost:4200` e os métodos `GET`, `POST`,
+`PUT` e `DELETE`. Em produção real, origens, HTTPS e credenciais devem ser
+configurados de acordo com o ambiente.
 
-## Encerrando os containers
+## Solução de problemas
 
-Dentro de `infra/`:
+### Docker não inicia
 
-```powershell
-docker compose down
-```
-
-Esse comando remove os containers e a rede, mas preserva o volume com os dados
-do Oracle. Para parar somente o backend:
+Confirme se o Docker Desktop está aberto:
 
 ```powershell
-docker compose stop backend
+docker version
 ```
 
-> Não use `docker compose down -v` se quiser preservar os dados. A opção `-v`
-> remove também o volume do Oracle.
+### Porta já está em uso
+
+```powershell
+netstat -ano | findstr :4200
+netstat -ano | findstr :5297
+netstat -ano | findstr :1521
+```
+
+Encerre o processo conflitante ou altere apenas o mapeamento da porta no
+Compose.
+
+### Frontend exibe “API indisponível”
+
+```powershell
+cd infra
+docker compose ps
+docker compose logs backend
+```
+
+Confirme também que a aplicação foi acessada por `http://localhost:4200`, que é
+a origem permitida pelo CORS.
+
+### Oracle demora na primeira inicialização
+
+É esperado que a primeira preparação leve alguns minutos. Acompanhe com:
+
+```powershell
+docker compose logs -f oracle
+```
+
+## Decisões técnicas
+
+- Arquitetura deliberadamente simples para uma task técnica.
+- Um service no backend concentra o CRUD e o acesso via EF Core.
+- Um service Angular concentra as cinco chamadas HTTP.
+- Reactive Forms mantém validação e estado do formulário explícitos.
+- O frontend atualiza a lista local após mutações para evitar `GETs`
+  desnecessários.
+- O build multi-stage não leva Node.js nem o SDK .NET para as imagens finais.
+- O Nginx possui fallback de SPA e cache longo para assets estáticos.
