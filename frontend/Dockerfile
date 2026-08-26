@@ -1,11 +1,13 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 
+ARG ANGULAR_CONFIGURATION=production
+
 COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . ./
-RUN npm run build -- --configuration production
+RUN npm run build -- --configuration ${ANGULAR_CONFIGURATION}
 
 FROM nginx:alpine AS final
 

@@ -5,6 +5,8 @@ services:
     build:
       context: ../frontend
       dockerfile: Dockerfile
+      args:
+        ANGULAR_CONFIGURATION: production,compose
     ports:
       - "4200:80"
     depends_on:

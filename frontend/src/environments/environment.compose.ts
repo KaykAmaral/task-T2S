@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://task-t2s.onrender.com/api'
+  apiUrl: 'http://localhost:5297/api'
 };

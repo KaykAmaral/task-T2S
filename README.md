@@ -127,6 +127,7 @@ entra em execução.
 | Serviço | Endereço |
 |---|---|
 | Frontend | `http://localhost:4200` |
+| Frontend publicado | `https://task-t2s.pages.dev` |
 | Backend | `http://localhost:5297` |
 | Oracle | `localhost:1521/FREEPDB1` |
 
@@ -266,7 +267,7 @@ Requer o SDK do .NET 9, mas não depende do Docker nem do Oracle:
 dotnet test backend\ProductApi.Tests\ProductApi.Tests.csproj
 ```
 
-Os nove testes utilizam xUnit e `WebApplicationFactory`. Eles cobrem os cinco
+Os dez testes utilizam xUnit e `WebApplicationFactory`. Eles cobrem os cinco
 endpoints, validações, status codes, Problem Details, CORS, tratamento de erros
 e a garantia de que não existem rotas adicionais.
 
@@ -306,9 +307,36 @@ dotnet ef migrations add NomeDaMigration `
 
 ## CORS
 
-O backend aceita a origem `http://localhost:4200` e os métodos `GET`, `POST`,
-`PUT` e `DELETE`. Em produção real, origens, HTTPS e credenciais devem ser
-configurados de acordo com o ambiente.
+O backend aceita as origens `http://localhost:4200` e
+`https://task-t2s.pages.dev`, com os métodos `GET`, `POST`, `PUT` e `DELETE`.
+Em outros ambientes, origens, HTTPS e credenciais devem ser configurados de
+acordo com o deploy.
+
+## API publicada no Render
+
+O build de produção do Angular usa:
+
+```text
+https://task-t2s.onrender.com/api
+```
+
+O frontend publicado está disponível em:
+
+```text
+https://task-t2s.pages.dev
+```
+
+Os ambientes continuam separados:
+
+| Execução | Arquivo/configuração | API utilizada |
+|---|---|---|
+| `npm start` | `environment.development.ts` | `http://localhost:5297/api` |
+| Docker Compose | `environment.compose.ts` | `http://localhost:5297/api` |
+| Build de produção | `environment.ts` | `https://task-t2s.onrender.com/api` |
+
+Se o frontend também for publicado, o CORS do backend deve receber a origem do
+frontend — não a URL da própria API. No Render, isso pode ser configurado por
+variáveis como `Cors__AllowedOrigins__0` e `Cors__AllowedOrigins__1`.
 
 ## Solução de problemas
 
@@ -339,8 +367,8 @@ docker compose ps
 docker compose logs backend
 ```
 
-Confirme também que a aplicação foi acessada por `http://localhost:4200`, que é
-a origem permitida pelo CORS.
+Confirme também que a aplicação foi acessada por `http://localhost:4200` ou
+`https://task-t2s.pages.dev`, que são as origens permitidas pelo CORS.
 
 ### Oracle demora na primeira inicialização
 
