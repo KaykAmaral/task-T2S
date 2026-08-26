@@ -1,8 +1,10 @@
 # Frontend Angular
 
 Interface web do CRUD de produtos, desenvolvida com Angular 18 e TypeScript. O
-frontend consome a API ASP.NET Core disponível em
-`http://localhost:5297/api/products`.
+frontend consome a API ASP.NET Core local durante o desenvolvimento e a API do
+Render no build de produção.
+
+Aplicação publicada: `https://task-t2s.pages.dev`.
 
 ## Funcionalidades
 
@@ -106,11 +108,13 @@ npm.cmd start
 
 ## Configuração da API
 
-Os arquivos em `src/environments/` definem:
+Os arquivos em `src/environments/` separam cada forma de execução:
 
-```typescript
-apiUrl: 'http://localhost:5297/api'
-```
+| Arquivo | Uso | API |
+|---|---|---|
+| `environment.development.ts` | `npm start` | `http://localhost:5297/api` |
+| `environment.compose.ts` | Docker Compose | `http://localhost:5297/api` |
+| `environment.ts` | Produção/deploy | `https://task-t2s.onrender.com/api` |
 
 O service acrescenta `/products` e expõe exatamente cinco métodos:
 
@@ -187,6 +191,10 @@ O Dockerfile possui duas etapas:
 node:22-alpine → npm ci + ng build
 nginx:alpine   → arquivos estáticos de produção
 ```
+
+Por padrão, o Dockerfile usa a configuração `production`, que aponta para o
+Render. O Compose informa `production,compose` como argumento de build para
+substituir somente a URL e continuar usando o backend local.
 
 Para construir e testar somente o frontend:
 

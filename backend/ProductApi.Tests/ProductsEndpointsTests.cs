@@ -168,12 +168,14 @@ public sealed class ProductsEndpointsTests : IClassFixture<ProductApiFactory>
         Assert.Contains("Price", problem.Errors.Keys);
     }
 
-    [Fact]
-    public async Task Cors_AllowsConfiguredAngularOrigin()
+    [Theory]
+    [InlineData("http://localhost:4200")]
+    [InlineData("https://task-t2s.pages.dev")]
+    public async Task Cors_AllowsConfiguredFrontendOrigin(string origin)
     {
         var cancellationToken = TestContext.Current.CancellationToken;
         using var request = new HttpRequestMessage(HttpMethod.Options, "/api/products/1");
-        request.Headers.Add("Origin", "http://localhost:4200");
+        request.Headers.Add("Origin", origin);
         request.Headers.Add("Access-Control-Request-Method", "PUT");
         request.Headers.Add("Access-Control-Request-Headers", "content-type");
 
@@ -181,7 +183,7 @@ public sealed class ProductsEndpointsTests : IClassFixture<ProductApiFactory>
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(
-            "http://localhost:4200",
+            origin,
             Assert.Single(response.Headers.GetValues("Access-Control-Allow-Origin")));
         Assert.Contains(
             "PUT",
